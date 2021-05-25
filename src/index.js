@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import data from './store';
+import connect from './db.js'
+import mongo from 'mongodb'
 
 const app = express()
 const port = 3000
@@ -20,8 +22,11 @@ app.post('/terrain', (req, res) => {
     res.json({});
   });
 
-app.get('/terrain', (req, res) => {
-    res.json(data.terrain);
+app.get('/terrain', async (req, res) => {
+  let db = await connect() // pristup db objektu
+  let cursor = await db.collection("terrain").find()
+  let results = await cursor.toArray()
+  res.json(results)
   });
 
 app.get('/terrain/categories', (req, res) => {

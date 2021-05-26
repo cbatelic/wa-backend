@@ -2,7 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import data from './store';
 import connect from './db.js'
-import mongo from 'mongodb'
+import mongo from 'mongodb';
+import auth from './auth.js';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express()
 const port = 3000
@@ -10,13 +14,46 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
+
 app.get('/', (req, res) => {
     res.json('Home page!');
   });
 
-app.post('/users', (req, res) => res.json(data.users));
+app.post('/user', async (req , res) =>{
+    let user = req.body;
 
-app.get('/users', (req, res) => res.json(data.users));
+    try{
+        let id = await auth.registerUser(user);
+    }
+    catch(e){
+        res.status(500).json({error: e.message});
+    }
+
+    res.json({
+        status:  "Success"
+    })
+
+});
+
+app.post('/auth', async (req, res) =>{
+  let user = req.body;
+  let name = user.name;
+  let email = user.email;
+  let password = user.password;
+  let surname = user.surname;
+  try{
+     let result = await auth.authenticateuser(email, password);
+     res.status(201).json(result);
+  }
+  catch (e){
+      res.status(500).json({error: e.message})
+      console.log(error)
+  }
+})
+
+// app.post('/users', (req, res) => res.json(data.users));
+
+// app.get('/users', (req, res) => res.json(data.users));
 
 app.post('/terrain', (req, res) => {
     res.json({});

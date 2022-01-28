@@ -3,11 +3,6 @@ import connect from './db.js';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-let connection_string = "mongodb+srv://admin:admin@cluster0.hwnki.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-let client = new mongo.MongoClient(connection_string, {
-useNewUrlParser: true,
-useUnifiedTopology: true
-});
 
 ( async () =>{
 let db = await connect();
@@ -48,17 +43,15 @@ export default {
             let token = jwt.sign(user, process.env.JWT_SECRET, {
                 algorithm : "HS512",
                 expiresIn: "1 week"
-            }) 
+            })
             return{
                token,
                email:user.email,
                password:user.password,
-               name: user.name,
-               surname: user.surname,
             }
         }
         else{
             throw new Error("cannot authenticate")
         }
-        }
+    },
     }

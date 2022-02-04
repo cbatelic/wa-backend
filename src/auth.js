@@ -1,4 +1,7 @@
-import mongo from "mongodb";
+import dotenv from "dotenv";
+dotenv.config();
+
+import mongo from 'mongodb';
 import connect from './db.js';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -36,22 +39,56 @@ export default {
     },
     
     async authenticateuser(email, password){
+        
         let db = await connect()
-        let user = await db.collection("user").findOne({email: email})
-        if(user && user.password && (await bcrypt.compare(password, user.password))){
+        let user = await db.collection("user").findOne({email:email})
+        console.log("++++++++" + email)
+        console.log("++++++++" + {email:email})
+        console.log("++++++++" + password)
+        console.log("++++++++" + user.email)
+        console.log("++++++++" + user.password)
+        console.log("++++++++" + user)
+        console.log(user)
+        
+        if(bcrypt.compare(password, user.password)&&user.password===password){
+            console.log("----JA RADIM-----")
             delete user.password
             let token = jwt.sign(user, process.env.JWT_SECRET, {
                 algorithm : "HS512",
                 expiresIn: "1 week"
-            })
+            }) 
+            
             return{
                token,
                email:user.email,
-               password:user.password,
+               name:user.name,
+               surname:user.surname
             }
         }
+       
         else{
+            
             throw new Error("cannot authenticate")
+            
         }
     },
+
+     verify(req, res, next){
+        try{
+            let authorization = req.headers.authorization.split(' ');
+            let type = authorization[0];
+            let token = authorization[1]
+            if(type !== "Bearer"){
+                return res.status(401).send();
+            }
+            else{
+            req.jwt =jwt.verify(token, process.env.JWT_SECRET);
+            return next()
+            }
+        }
+        catch(e){
+           return res.status(401).send({Error: 'error'});
+           
+        }
+    }
     }

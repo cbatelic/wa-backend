@@ -14,12 +14,59 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
-app.get('/posts', async (req, res) => {
-  let db = await connect() // pristup db objektu
-  let cursor = await db.collection("posts").find()
-  let results = await cursor.toArray()
-  res.json(results)
- })
+app.post('/terrain', async (req, res) => {
+  let data = req.body;
+  //postovi datum i vrijeme posta
+  data.posted_at = new Date().getTime();
+
+
+  delete data._id;
+  let check = checkAttributesTerrain(data)
+  if(!check){
+          res.json({
+          status: 'fail',
+         reason: 'incomplete post',
+      });
+      return;
+  }
+
+  let db = await connect();
+  let result = await db.collection("terrain").insertOne(data);
+
+  if(result && result.insertedCount ==1){
+     res.json({
+         status: 'success'
+     });
+  }
+  else{
+      res.json({
+          status: 'fail',
+      });
+  }
+});
+
+//dohvaćanje svih postova
+app.get ('/terrain', async (req , res) => {
+  let db = await connect();
+  
+
+  let selekcija = {};
+
+
+  let cursor = await db.collection('terrain').find(selekcija).sort( { posted_at: -1 });
+  let results = await cursor.toArray();
+
+  res.json(results);
+});
+
+app.get('/terrain/:terrainId', async (req, res)=>{ //dinamicka ruta
+  let jobId = req.params.jobId //dohvat jednog dokumenta sa tocnim id-em
+  let db = await connect();
+
+  let doc = await db.collection("terrain").findOne({_id: mongo.ObjectId(terrainId)});
+  console.log(doc)
+  res.json(doc)
+});
 
 
 app.get('/', (req, res) => {
@@ -63,58 +110,8 @@ app.post('/auth', async (req, res) =>{
   }
 })
 
-// app.post('/users', (req, res) => res.json(data.users));
-
-// app.get('/users', (req, res) => res.json(data.users));
-
-app.post('/terrain', (req, res) => {
-    res.json({});
-  });
-
-app.get('/terrain', async (req, res) => {
-  let db = await connect() // pristup db objektu
-  let cursor = await db.collection("terrain").find()
-  let results = await cursor.toArray()
-  res.json(results)
-  });
-
-app.get('/terrain/categories', (req, res) => {
-    res.json(data.categories);
-  });
-
-app.get('/terrain/categories/termin', (req, res) => {
-    res.json(data.termin);
-  });
-
-app.post('/terrain/categories/termin/teamReg', (req, res) => {
-    res.json({});
-  });
-
-app.get('/terrain/categories/termin/teamReg', (req, res) => {
-    res.json(data.team);
-  });
-
-app.post('/teams', (req, res) => {
-    res.json({});
-  });
-
-app.get('/teams', (req, res) => {
-    res.json({});
-  });
-
-app.post('/messages', (req, res) => {
-    res.json({});
-  });
-
-app.get('/messages', (req, res) => {
-    res.json({});
-  });
-
-app.get('/search', (req, res) => {
-    res.json({});
-  });
-
 
 app.listen(port, () =>
   console.log(`\n\n[DONE] Backend se vrti na http://localhost:${port}/\n\n`)
 );
+

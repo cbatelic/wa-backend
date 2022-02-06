@@ -14,24 +14,36 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
+// app.post('/terrain', (req, res) => {
+//   let data = req.body;
+
+//   // ovo inače radi baza (autoincrement ili sl.), ali čisto za primjer
+//   data.id = 1 + storage.terrains.reduce((max, el) => Math.max(el.id, max), 0);
+
+//   // dodaj u našu bazu (lista u memoriji)
+//   storage.terrains.push(data);
+
+//   // vrati ono što je spremljeno
+//   res.json(data); // vrati podatke za referencu
+// });
 app.post('/terrain', async (req, res) => {
   let data = req.body;
   //postovi datum i vrijeme posta
   data.posted_at = new Date().getTime();
 
 
-  delete data._id;
-  let check = checkAttributesTerrain(data)
-  if(!check){
-          res.json({
-          status: 'fail',
-         reason: 'incomplete post',
-      });
-      return;
-  }
+  // delete data._id;
+  // let check = checkAttributesTerrain(data)
+  // if(!check){
+  //         res.json({
+  //         status: 'fail',
+  //        reason: 'incomplete post',
+  //     });
+  //     return;
+  // }
 
   let db = await connect();
-  let result = await db.collection("terrain").insertOne(data);
+  let result = await db.collection("terrains").insertOne(data);
 
   if(result && result.insertedCount ==1){
      res.json({
@@ -53,17 +65,17 @@ app.get ('/terrain', async (req , res) => {
   let selekcija = {};
 
 
-  let cursor = await db.collection('terrain').find(selekcija).sort( { posted_at: -1 });
+  let cursor = await db.collection('terrains').find(selekcija).sort( { posted_at: -1 });
   let results = await cursor.toArray();
 
   res.json(results);
 });
 
 app.get('/terrain/:terrainId', async (req, res)=>{ //dinamicka ruta
-  let jobId = req.params.jobId //dohvat jednog dokumenta sa tocnim id-em
+  let terrainId = req.params.terrainId //dohvat jednog dokumenta sa tocnim id-em
   let db = await connect();
 
-  let doc = await db.collection("terrain").findOne({_id: mongo.ObjectId(terrainId)});
+  let doc = await db.collection("terrains").findOne({_id: mongo.ObjectId(terrainId)});
   console.log(doc)
   res.json(doc)
 });

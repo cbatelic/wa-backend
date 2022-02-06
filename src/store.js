@@ -14,15 +14,15 @@ let data = {
     terrain: {
         data: [
             {
-                name_hall:"",
-                name_city:"",
+                terrainName:"",
+                terrainCity:"",
             }
         ]
     },
     categories: {
         data: [
             {
-                categories:""
+                terrainCategories:""
             }
         ]
     },
@@ -37,7 +37,7 @@ let data = {
     team: {
         data: [
             {
-                team_name:"",
+                teamName:"",
                 members:"",
                 note:""
             }

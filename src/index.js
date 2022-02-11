@@ -14,6 +14,16 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
+app.use("/api/private", auth.permit("admin"));
+
+app.post("/", (req, res) => {
+  console.log("daa");
+  res.json({ status: "ok" });
+}),
+  app.get("/tajna", [auth.verify], (req, res) => {
+    res.json({ message: "Tajna " + req.jwt.email });
+  });
+
 // app.post('/terrain', (req, res) => {
 //   let data = req.body;
 
@@ -26,6 +36,33 @@ app.use(express.json());
 //   // vrati ono što je spremljeno
 //   res.json(data); // vrati podatke za referencu
 // });
+
+
+
+// admin
+app.get("/admin", [auth.verify], auth.permit("admin"), async (req, res) => {
+  let db = await connect();
+
+  let cursor = await db.collection("users").find();
+  let result = await cursor.toArray();
+
+  res.json(result);
+});
+
+app.get(
+  "/admin/:email",
+  [auth.verify],
+  auth.permit("admin"),
+  async (req, res) => {
+    let db = await connect();
+
+    let doc = await db.collection("users").findOne({ role: "admin" });
+    //console.log(doc);
+
+    res.json(doc);
+  }
+);
+
 app.post('/terrain', async (req, res) => {
   let data = req.body;
   //postovi datum i vrijeme posta

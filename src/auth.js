@@ -90,5 +90,23 @@ export default {
            return res.status(401).send({Error: 'error'});
            
         }
-    }
+    },
+    permit(...permittedRoles) {
+        // return a middleware
+        return (req, res, next) => {
+          let authorization = req.headers.authorization.split(" ");
+          let type = authorization[0];
+          let token = authorization[1];
+    
+          let user = req.jwt;
+          user = jwt.verify(token, process.env.JWT_SECRET);
+          //console.log(user);
+    
+          if (user && permittedRoles.includes(user.role)) {
+            next(); //role is allowed, so continue on the next middleware
+          } else {
+            res.status(403).json({ message: "Forbidden" }); // user is forbidden
+          }
+        };
+      },
     }

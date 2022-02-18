@@ -109,4 +109,28 @@ export default {
           }
         };
       },
+
+      async changePassword(email, old_password, new_password) {
+        let db = await connect();
+        // postoji li korisnik?
+        let user = await db.collection('user').findOne({email: email });
+        // provjera da li je uneseni stari pass isti kao pass u bazi
+        if (
+          user &&
+          user.password &&
+          (await bcrypt.compare(old_password, user.password))
+        ) {
+          let new_password_hashed = await bcrypt.hash(new_password, 8);
+          let result = await db.collection('user').updateOne(
+            { _id: user._id },
+            {
+              $set: {
+                password: new_password_hashed,
+              },
+            }
+          );
+          // vraca true ako je promijenjen 1 zapis
+          return result.modifiedCount == 1;
+        }
+      },
     }

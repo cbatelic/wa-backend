@@ -68,17 +68,6 @@ app.post('/terrain', async (req, res) => {
   //postovi datum i vrijeme posta
   data.posted_at = new Date().getTime();
 
-
-  // delete data._id;
-  // let check = checkAttributesTerrain(data)
-  // if(!check){
-  //         res.json({
-  //         status: 'fail',
-  //        reason: 'incomplete post',
-  //     });
-  //     return;
-  // }
-
   let db = await connect();
   let result = await db.collection("terrains").insertOne(data);
 
@@ -92,6 +81,46 @@ app.post('/terrain', async (req, res) => {
           status: 'fail',
       });
   }
+});
+app.post('/homeAdmin', async (req, res) => {
+  let data = req.body;
+  //postovi datum i vrijeme posta
+  data.posted_at = new Date().getTime();
+
+  let db = await connect();
+  let result = await db.collection("booking").insertOne(data);
+
+  if(result && result.insertedCount ==1){
+     res.json({
+         status: 'success'
+     });
+  }
+  else{
+      res.json({
+          status: 'fail',
+      });
+  }
+});
+app.get ('/homeAdmin', async (req , res) => {
+  let db = await connect();
+  
+
+  let selekcija = {};
+
+
+  let cursor = await db.collection('booking').find(selekcija).sort( { posted_at: -1 });
+  let results = await cursor.toArray();
+
+  res.json(results);
+});
+
+app.get('/homeAdmin/:homeId', async (req, res)=>{ //dinamicka ruta
+  let homeId = req.params.homeId //dohvat jednog dokumenta sa tocnim id-em
+  let db = await connect();
+
+  let doc = await db.collection("booking").findOne({_id: mongo.ObjectId(homeId)});
+  console.log(doc)
+  res.json(doc)
 });
 
 //dohvaćanje svih postova
@@ -158,6 +187,26 @@ app.post('/auth', async (req, res) =>{
       console.log(error)
   }
 })
+app.patch('/user', [auth.verify], async (req, res) => {
+  let changes = req.body;
+  let email = req.jwt.email;
+
+  if (changes.new_password && changes.old_password) {
+    let result = await auth.change_Password(
+      email,
+      changes.old_password,
+      changes.new_password
+    );
+
+    if (result) {
+      res.status(201).send();
+    } else {
+      res.status(500).json({ error: 'Cannot change your password!' });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid inquiry!' });
+  }
+});
 
 
 app.listen(port, () =>

@@ -190,21 +190,23 @@ app.post('/auth', async (req, res) =>{
 app.patch('/user', [auth.verify], async (req, res) => {
   let changes = req.body;
   let email = req.jwt.email;
+  console.log(changes);
+  console.log(email)
 
   if (changes.new_password && changes.old_password) {
-    let result = await auth.change_Password(
+    let result = await auth.changeUserPassword(
       email,
       changes.old_password,
-      changes.new_password
+      changes.new_password,
     );
-
+  console.log(result)
     if (result) {
       res.status(201).send();
     } else {
       res.status(500).json({ error: 'Cannot change your password!' });
     }
   } else {
-    res.status(400).json({ error: 'Invalid inquiry!' });
+    res.status(400).json({ error: 'Invalid!' });
   }
 });
 

@@ -42,16 +42,9 @@ export default {
         
         let db = await connect()
         let user = await db.collection("user").findOne({email:email})
-        console.log("++++++++" + email)
-        console.log("++++++++" + {email:email})
-        console.log("++++++++" + password)
-        console.log("++++++++" + user.email)
-        console.log("++++++++" + user.password)
-        console.log("++++++++" + user)
         console.log(user)
         
         if(bcrypt.compare(password, user.password)&&user.password===password){
-            console.log("----JA RADIM-----")
             delete user.password
             let token = jwt.sign(user, process.env.JWT_SECRET, {
                 algorithm : "HS512",
@@ -110,27 +103,24 @@ export default {
         };
       },
 
-      async changePassword(email, old_password, new_password) {
-        let db = await connect();
-        // postoji li korisnik?
-        let user = await db.collection('user').findOne({email: email });
-        // provjera da li je uneseni stari pass isti kao pass u bazi
-        if (
-          user &&
-          user.password &&
-          (await bcrypt.compare(old_password, user.password))
-        ) {
-          let new_password_hashed = await bcrypt.hash(new_password, 8);
-          let result = await db.collection('user').updateOne(
-            { _id: user._id },
-            {
-              $set: {
-                password: new_password_hashed,
-              },
-            }
-          );
-          // vraca true ako je promijenjen 1 zapis
-          return result.modifiedCount == 1;
-        }
-      },
+      async changeUserPassword(email, old_password, new_password) {
+		let db = await connect();
+		let user = await db.collection("user").findOne({ email: email });
+		if (
+			user &&
+			user.password &&
+			(await bcrypt.compare(old_password, user.password))
+		) 
+        console.log(user)
+        {
+			let new_password_hashed = await bcrypt.hash(new_password, 8);
+			let result = await db
+				.collection("user")
+				.updateOne(
+					{ _id: user._id },
+					{ $set: { password: new_password_hashed } }
+				);
+			return result.modifiedCount == 1;
+		}
+	},
     }

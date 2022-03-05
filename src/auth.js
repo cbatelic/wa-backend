@@ -118,7 +118,11 @@ export default {
 				.collection("user")
 				.updateOne(
 					{ _id: user._id },
-					{ $set: { password: new_password_hashed } }
+					{ 
+                        $set: {
+                             password: new_password_hashed,
+                        },
+                 }
 				);
 			return result.modifiedCount == 1;
 		}

@@ -137,13 +137,54 @@ app.get ('/terrain', async (req , res) => {
   res.json(results);
 });
 
-app.get('/terrain/:terrainId', async (req, res)=>{ //dinamicka ruta
-  let terrainId = req.params.terrainId //dohvat jednog dokumenta sa tocnim id-em
+// app.get('/terrain/:terrainId', async (req, res)=>{ //dinamicka ruta
+//   let terrainId = req.params.terrainId //dohvat jednog dokumenta sa tocnim id-em
+//   let db = await connect();
+
+//   let doc = await db.collection("terrains").findOne({_id: mongo.ObjectId(terrainId)});
+//   console.log(doc)
+//   res.json(doc)
+// });
+
+app.post('/usersQuestionsAdmin', async (req, res) => {
+  let data = req.body;
+  //postovi datum i vrijeme posta
+  data.posted_at = new Date().getTime();
+
+  let db = await connect();
+  let result = await db.collection("questions").insertOne(data);
+
+  if(result && result.insertedCount ==1){
+     res.json({
+         status: 'success'
+     });
+  }
+  else{
+      res.json({
+          status: 'fail',
+      });
+  }
+});
+
+app.get ('/usersQuestionsAdmin', async (req , res) => {
+  let db = await connect();
+  
+
+  let selekcija = {};
+
+
+  let cursor = await db.collection('questions').find(selekcija).sort( { posted_at: -1 });
+  let results = await cursor.toArray();
+
+  res.json(results);
+});
+
+app.get('/usersQuestionsAdmin/:id', [auth.verify], async (req, res) => {
+  let id = req.params.id;
   let db = await connect();
 
-  let doc = await db.collection("terrains").findOne({_id: mongo.ObjectId(terrainId)});
-  console.log(doc)
-  res.json(doc)
+  let doc = await db.collection('questions').findOne({ _id: mongo.ObjectId(id) });
+  res.json(doc);
 });
 
 

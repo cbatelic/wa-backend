@@ -179,7 +179,7 @@ app.get ('/usersQuestionsAdmin', async (req , res) => {
   res.json(results);
 });
 
-app.get('/questionsAdminDetail/:id', [auth.verify], async (req, res) => {
+app.get('/usersQuestionsAdmin/:id', [auth.verify], async (req, res) => {
   let id = req.params.id;
   let db = await connect();
 

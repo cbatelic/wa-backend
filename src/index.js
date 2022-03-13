@@ -14,7 +14,7 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
-app.use("/api/private", auth.permit("admin"));
+// app.use("/api/private", auth.permit("admin"));
 
 app.post("/", (req, res) => {
   console.log("daa");
@@ -40,28 +40,28 @@ app.post("/", (req, res) => {
 
 
 // admin
-app.get("/admin", [auth.verify], auth.permit("admin"), async (req, res) => {
-  let db = await connect();
+// app.get("/homeAdmin", [auth.verify], auth.permit("admin"), async (req, res) => {
+//   let db = await connect();
 
-  let cursor = await db.collection("users").find();
-  let result = await cursor.toArray();
+//   let cursor = await db.collection("users").find();
+//   let result = await cursor.toArray();
 
-  res.json(result);
-});
+//   res.json(result);
+// });
 
-app.get(
-  "/admin/:email",
-  [auth.verify],
-  auth.permit("admin"),
-  async (req, res) => {
-    let db = await connect();
+// app.get(
+//   "/homeAdmin/:email",
+//   [auth.verify],
+//   auth.permit("admin"),
+//   async (req, res) => {
+//     let db = await connect();
 
-    let doc = await db.collection("users").findOne({ role: "admin" });
-    //console.log(doc);
+//     let doc = await db.collection("users").findOne({ role: "admin" });
+//     //console.log(doc);
 
-    res.json(doc);
-  }
-);
+//     res.json(doc);
+//   }
+// );
 
 app.post('/terrain', async (req, res) => {
   let data = req.body;
@@ -110,18 +110,28 @@ app.get ('/homeAdmin', async (req , res) => {
 
   let cursor = await db.collection('booking').find(selekcija).sort( { posted_at: -1 });
   let results = await cursor.toArray();
+  console.log(cursor)
+    for(let doc of cursor.data){
+      let terrain = await db.collection('terrains').findById(doc.terrainId)
+      console.log(doc)
+      results.push({
+                  bookingId: doc._bookingId,
+                  terrainName: terrain.terrainName,
+                  terrainCity: terrain.terrainCity,
+                  terrainCategories: terrain.terrainCategories,
+                  teamName: doc.teamName,
+                  userEmail: doc.userEmail,
+                  members: doc.members,
+                  note: doc.note,
+                  date: terrain.date,
+                  time: terrain.time,
+      })
+    }
+    console.log(terrain)
 
   res.json(results);
 });
 
-app.get('/homeAdmin/:homeId', async (req, res)=>{ //dinamicka ruta
-  let homeId = req.params.homeId //dohvat jednog dokumenta sa tocnim id-em
-  let db = await connect();
-
-  let doc = await db.collection("booking").findOne({_id: mongo.ObjectId(homeId)});
-  console.log(doc)
-  res.json(doc)
-});
 
 //dohvaćanje svih postova
 app.get ('/terrain', async (req , res) => {
@@ -136,15 +146,6 @@ app.get ('/terrain', async (req , res) => {
 
   res.json(results);
 });
-
-// app.get('/terrain/:terrainId', async (req, res)=>{ //dinamicka ruta
-//   let terrainId = req.params.terrainId //dohvat jednog dokumenta sa tocnim id-em
-//   let db = await connect();
-
-//   let doc = await db.collection("terrains").findOne({_id: mongo.ObjectId(terrainId)});
-//   console.log(doc)
-//   res.json(doc)
-// });
 
 app.post('/usersQuestionsAdmin', async (req, res) => {
   let data = req.body;

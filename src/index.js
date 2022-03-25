@@ -14,7 +14,7 @@ const port = 3000
 app.use(cors())
 app.use(express.json());
 
-app.use("/api/private", auth.permit("admin"));
+// app.use("/api/private", auth.permit("admin"));
 
 app.post("/", (req, res) => {
   console.log("daa");
@@ -40,31 +40,32 @@ app.post("/", (req, res) => {
 
 
 // admin
-app.get("/homeAdmin", [auth.verify], auth.permit("admin"), async (req, res) => {
-  let db = await connect();
+// app.get("/homeAdmin", [auth.verify], auth.permit("admin"), async (req, res) => {
+//   let db = await connect();
 
-  let cursor = await db.collection("users").find();
-  let result = await cursor.toArray();
+//   let cursor = await db.collection("users").find();
+//   let result = await cursor.toArray();
 
-  res.json(result);
-});
+//   res.json(result);
+// });
 
-app.get(
-  "/homeAdmin/:email",
-  [auth.verify],
-  auth.permit("admin"),
-  async (req, res) => {
-    let db = await connect();
+// app.get(
+//   "/homeAdmin/:email",
+//   [auth.verify],
+//   auth.permit("admin"),
+//   async (req, res) => {
+//     let db = await connect();
 
-    let doc = await db.collection("users").findOne({ role: "admin" });
-    //console.log(doc);
+//     let doc = await db.collection("users").findOne({ role: "admin" });
+//     //console.log(doc);
 
-    res.json(doc);
-  }
-);
+//     res.json(doc);
+//   }
+// );
 
 app.post('/terrain', async (req, res) => {
   let data = req.body;
+  console.log(data);
   //postovi datum i vrijeme posta
   data.posted_at = new Date().getTime();
 
@@ -72,11 +73,14 @@ app.post('/terrain', async (req, res) => {
   let result = await db.collection("terrains").insertOne(data);
 
   if(result && result.insertedCount ==1){
-     res.json({
+    console.log("OK")
+     res.status(200).json({
          status: 'success'
      });
   }
   else{
+    console.log("Ne OK")
+
       res.json({
           status: 'fail',
       });
@@ -103,30 +107,40 @@ app.post('/homeAdmin', async (req, res) => {
 });
 app.get ('/homeAdmin', async (req , res) => {
   let db = await connect();
+  // 
+  let bookings = await db.collection('booking').find({}).sort( { posted_at: -1 }).toArray();
   
-  let bookings = await db.collection('booking').find({}).sort( { posted_at: -1 });
-  let booking = await bookings.toArray();
+
   
-    for(let doc of booking){
-      let terrains = await db.collection('terrains').find({_id: doc.terrainId}).sort( { posted_at: -1 });;
-      let terrain = await terrains.toArray();
-      console.log(terrain);
-      booking.push({
-                  // id: doc._id,
-                  terrainId: doc._terrainId,
-                  terrainName: terrain.terrainName,
-                  terrainCity: terrain.terrainCity,
-                  terrainCategories: terrain.terrainCategories,
-                  teamName: doc.teamName,
-                  userEmail: doc.userEmail,
-                  members: doc.members,
-                  note: doc.note,
-                  date: terrain.date,
-                  time: terrain.time,
-      })
+    // for(let doc of booking){
+    //   let terrains = await db.collection('terrains').find(x => x._id == doc._terrainId).sort( { posted_at: -1 });;
+    //   let terrain = await terrains.toArray();
+    //   console.log(terrain);
+    //   booking.push({
+    //               // id: doc._id,
+    //               terrainId: doc._terrainId,
+    //               terrainName: terrain.terrainName,
+    //               terrainCity: terrain.terrainCity,
+    //               terrainCategories: terrain.terrainCategories,
+    //               teamName: doc.teamName,
+    //               userEmail: doc.userEmail,
+    //               members: doc.members,
+    //               note: doc.note,
+    //               date: terrain.date,
+    //               time: terrain.time,
+    //   })
       
-    }
-  res.json(booking);
+    // }
+
+    let terrains = await db.collection('terrains').find({}).sort({ posted_at: -1 }).toArray();
+
+
+    bookings.forEach(booking => {
+      let terrain = terrains.find(x => x._id == booking.terrainId);
+      booking.terrain = terrain;
+    });
+  res.json(bookings);
+
 });
 
 

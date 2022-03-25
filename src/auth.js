@@ -21,8 +21,10 @@ export default {
             email: userData.email,
             password: await bcrypt.hash(userData.password, 6),
             name: userData.name,
-            surname: userDate.surname
+            surname: userData.surname,
+            role: 'admin'
         };
+        console.log('doc:', doc)
         try {
            let result = await db.collection("user").insertOne(doc);
            if(result && result.inesrtedId)
@@ -55,7 +57,8 @@ export default {
                token,
                email:user.email,
                name:user.name,
-               surname:user.surname
+               surname:user.surname,
+               role: user.role
             }
         }
        
@@ -84,24 +87,27 @@ export default {
            
         }
     },
-    permit(...permittedRoles) {
-        // return a middleware
-        return (req, res, next) => {
-          let authorization = req.headers.authorization.split(" ");
-          let type = authorization[0];
-          let token = authorization[1];
+    // permit(...permittedRoles) {
+    //     // return a middleware
+        
+    //     return (req, res, next) => {
+    //       let authorization = req.headers.authorization.split(" ");
+    //       let type = authorization[0];
+    //       let token = authorization[1];
+    //       let user = req.jwt;
+
+    //       user = jwt.verify(token, process.env.JWT_SECRET);
+    //         console.log(user)
+          
     
-          let user = req.jwt;
-          user = jwt.verify(token, process.env.JWT_SECRET);
-          //console.log(user);
-    
-          if (user && permittedRoles.includes(user.role)) {
-            next(); //role is allowed, so continue on the next middleware
-          } else {
-            res.status(403).json({ message: "Forbidden" }); // user is forbidden
-          }
-        };
-      },
+    //       if (user && permittedRoles.includes(user.role)) {
+    //           console.log(user)
+    //         next(); //role is allowed, so continue on the next middleware
+    //       } else {
+    //         res.status(403).json({ message: "Forbidden" }); // user is forbidden
+    //       }
+    //     };
+    //   },
 
       async changeUserPassword(email, old_password, new_password) {
 		let db = await connect();

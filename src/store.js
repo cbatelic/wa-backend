@@ -11,7 +11,7 @@ let data = {
             },
         ],
     },
-    terrain: {
+    terrains: {
         data: [
             {
                 terrainName:"",
@@ -26,7 +26,7 @@ let data = {
             }
         ]
     },
-    termin: {
+    termins: {
         data: [
             {
                 date:"",
@@ -34,7 +34,7 @@ let data = {
             }
         ]
     },
-    team: {
+    teams: {
         data: [
             {
                 teamName:"",

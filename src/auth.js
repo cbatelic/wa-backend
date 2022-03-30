@@ -19,10 +19,9 @@ export default {
 
         let doc = {
             email: userData.email,
-            password: await bcrypt.hash(userData.password, 6),
+            password: await bcrypt.hash(userData.password, 8),
             name: userData.name,
-            surname: userData.surname,
-            role: 'admin'
+            surname: userData.surname
         };
         console.log('doc:', doc)
         try {
@@ -57,8 +56,7 @@ export default {
                token,
                email:user.email,
                name:user.name,
-               surname:user.surname,
-               role: user.role
+               surname:user.surname
             }
         }
        
@@ -69,47 +67,7 @@ export default {
         }
     },
 
-     verify(req, res, next){
-        try{
-            let authorization = req.headers.authorization.split(' ');
-            let type = authorization[0];
-            let token = authorization[1]
-            if(type !== "Bearer"){
-                return res.status(401).send();
-            }
-            else{
-            req.jwt =jwt.verify(token, process.env.JWT_SECRET);
-            return next()
-            }
-        }
-        catch(e){
-           return res.status(401).send({Error: 'error'});
-           
-        }
-    },
-    // permit(...permittedRoles) {
-    //     // return a middleware
-        
-    //     return (req, res, next) => {
-    //       let authorization = req.headers.authorization.split(" ");
-    //       let type = authorization[0];
-    //       let token = authorization[1];
-    //       let user = req.jwt;
-
-    //       user = jwt.verify(token, process.env.JWT_SECRET);
-    //         console.log(user)
-          
-    
-    //       if (user && permittedRoles.includes(user.role)) {
-    //           console.log(user)
-    //         next(); //role is allowed, so continue on the next middleware
-    //       } else {
-    //         res.status(403).json({ message: "Forbidden" }); // user is forbidden
-    //       }
-    //     };
-    //   },
-
-      async changeUserPassword(email, old_password, new_password) {
+    async changeUserPassword(email, old_password, new_password) {
 		let db = await connect();
 		let user = await db.collection("user").findOne({ email: email });
 		if (
@@ -130,7 +88,29 @@ export default {
                         },
                  }
 				);
+                console.log(new_password_hashed)
 			return result.modifiedCount == 1;
+            
 		}
+        
 	},
+     verify(req, res, next){
+        try{
+            let authorization = req.headers.authorization.split(' ');
+            let type = authorization[0];
+            let token = authorization[1]
+            if(type !== "Bearer"){
+                return res.status(401).send();
+            }
+            else{
+            req.jwt =jwt.verify(token, process.env.JWT_SECRET);
+            return next()
+            }
+        }
+        catch(e){
+           return res.status(401).send({Error: 'error'});
+           
+        }
+    },
+     
     }

@@ -45,7 +45,7 @@ export default {
         let user = await db.collection("user").findOne({email:email})
         console.log(user)
         
-        if(bcrypt.compare(password, user.password)&&user.password===password){
+        if(user && user.password && (await bcrypt.compare(password, user.password))){
             delete user.password
             let token = jwt.sign(user, process.env.JWT_SECRET, {
                 algorithm : "HS512",

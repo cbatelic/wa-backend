@@ -78,6 +78,23 @@ app.get ('/homeAdmin', async (req , res) => {
 });
 
 
+app.put('/homeAdmin', async(req, res) => {
+  let db = await connect();
+  let bookings = await db.collection('booking').find({}).sort( { posted_at: -1 }).toArray();
+  let terrains = await db.collection('terrains').find({}).sort({ posted_at: -1 }).toArray();
+  let booking = bookings.find(x => x._id == req.body._id);
+  booking.members = req.body.members;
+  const options = { returnNewDocument: true };
+  await db.collection('booking').updateOne({"teamName": req.body.teamName}, {
+    $set: {
+      "members": booking.members
+    }
+  }, options)
+  .catch(err => console.error(`Failed to find and update document: ${err}`))
+
+
+})
+
 //dohvaćanje svih postova
 app.get ('/terrain', async (req , res) => {
   let db = await connect();
@@ -135,26 +152,19 @@ app.get('/', (req, res) => {
   });
 
 app.post('/user', async (req , res) =>{
-    let user = req.body;
-    let db = await connect();
-    let result = await db.collection('user').insertOne(user);
-    
-    if (result.insertedCount == 1) {
-        res.send({
-            status: 'success',
-            id: result.insertedId,
-        });
-    } 
-    else {
-        res.send({
-            status: 'fail',
-        });
-    }
+  let user = req.body;
+  
+  try{
+      let id = await auth.registerUser(user);
+  }
+  catch(e){
+      res.status(500).json({error: e.message});
+  }
 
-    res.json({
-        id:  id
-    })
-
+  res.json({
+      status:  "Success"
+  })
+ 
 });
 
 app.post('/auth', async (req, res) =>{

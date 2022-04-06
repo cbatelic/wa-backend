@@ -7,7 +7,7 @@
     "serve": "nodemon --exec babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "cross-env NODE_ENV = development nest start --watch",
-    "build": "babel src -d build", 
+    "build": "babel src -d build",
     "start": "node build/index.js"
   },
   "author": "",

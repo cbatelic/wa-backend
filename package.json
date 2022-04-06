@@ -2,7 +2,7 @@
   "name": "wa-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "babel src -d build",
     "start": "node build/index.js",

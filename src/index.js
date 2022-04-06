@@ -83,11 +83,13 @@ app.put('/homeAdmin', async(req, res) => {
   let bookings = await db.collection('booking').find({}).sort( { posted_at: -1 }).toArray();
   let terrains = await db.collection('terrains').find({}).sort({ posted_at: -1 }).toArray();
   let booking = bookings.find(x => x._id == req.body._id);
-  booking.members = req.body.members;
+  if(booking){
+    booking.members = req.body.members;
+  }
   const options = { returnNewDocument: true };
   await db.collection('booking').updateOne({"teamName": req.body.teamName}, {
     $set: {
-      "members": booking.members
+      "members": req.body.members
     }
   }, options)
   .catch(err => console.error(`Failed to find and update document: ${err}`))

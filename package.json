@@ -6,8 +6,9 @@
   "scripts": {
     "serve": "nodemon --exec babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env NODE_ENV = production nest start",
-    "start:dev": "cross-env NODE_ENV = development nest start --watch"
+    "start:dev": "cross-env NODE_ENV = development nest start --watch",
+    "build": "babel src -d build", 
+    "start": "node build/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,8 +21,10 @@
     "mongodb": "^3.7.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.10",
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
     "@babel/node": "^7.13.10",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.13.10",
     "nodemon": "^2.0.7",
     "ws": "3.3.2"

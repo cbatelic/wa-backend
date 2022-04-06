@@ -2,16 +2,17 @@
   "name": "wa-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "build": "babel src -d build",
+    "start": "node build/index.js",
     "serve": "nodemon --exec babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "heroku-prebuild": "export NPM_CONFIG_PRODUCTION=false; export NODE_ENV=; NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm install --only=dev --dev",
     "heroku-postbuild": "npm run prod",
-    "start:dev": "cross-env NODE_ENV = development nest start --watch",
-    "build": "babel src -d build",
-    "start": "node build/index.js"
+    "start:dev": "cross-env NODE_ENV = development nest start --watch"
   },
+  
   "author": "",
   "license": "ISC",
   "dependencies": {
